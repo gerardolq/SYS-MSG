@@ -33,36 +33,38 @@ string toString(int n)
 
 int main()
 {
-	int alpha = 997;
+	int alpha = 5443;
 	srand(time(NULL));
 	int qid = msgget(ftok(".",'u'), 0);
-	int num=49;
-	//
 	buf msg;
-	//
 	buf rcv;
 	string message;
 	int size = sizeof(msg) - sizeof(long);
-	msg.m_type = 997;
+	msg.m_type = 257;
+	int num = getpid();
+	message = toString(num);
+	strncpy(msg.greeting, message.c_str(), size);
+	msgsnd(qid, (struct msgbuf *)&msg, size, 0);
 	do
 	{
 		num = rand();
 		if(num % alpha == 0)
 			{
+				cout << "Message sent from: " << getpid() << endl;
 				message = toString(num);
 				strncpy(msg.greeting, message.c_str(), size);
 				cout << "Number sent:" << num << endl;
 				msgsnd(qid, (struct msgbuf *)&msg, size, 0);	// sends to DataHub
-				msgrcv(qid, (struct msgbuf *)&rcv, size, 4, 0);	// receives from DataHub
+				msgrcv(qid, (struct msgbuf *)&rcv, size, 20000, 0);	// receives from DataHub
 			}
-		//num = 49;
 
-	}while(num > 50);
+	}while(num >= 50);
+
 	cout << "Last number: " << num<< endl;
 
 	//msgrcv(qid, (struct msgbuf *)&rcv, size, 4, 0);
 	//cout << rcv.greeting << endl;
-	strncpy(msg.greeting, "TERMINATE", size);
+	strncpy(msg.greeting, "T", size);
 	msgsnd(qid, (struct msgbuf *)&msg, size, 0);
 	return 0;
 }

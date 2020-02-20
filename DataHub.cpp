@@ -4,8 +4,12 @@
 #include<unistd.h>
 #include<sys/types.h>
 #include<cstring>
-#include <sys/ipc.h> 
+#include <sys/ipc.h>
 #include <sys/msg.h>
+#include <stdio.h>
+
+#include "FORCE_PATCH.H"
+
 using namespace std;
 
 struct buf
@@ -18,54 +22,56 @@ struct buf
 
 int main()
 {
-	int beta = 257;
+	int alpha = 5443;
+	int beta = 1777;
 	int rho = 251;
 	int qid = msgget(ftok(".",'u'),IPC_EXCL|IPC_CREAT|0600);
 	buf msg;
+	msg.m_type = 20000;
+	buf rcv;
 	int size = sizeof(msg) - sizeof(long);
-	buf rcvA;
-	buf rcvB;
-	buf rcvC;
-	int msgRec = 0;
+	bool killed = false;
+	//starts at 3 since we first receive a msg from each probe with their PID
+	int msgRec = 2;
+	//numberRecieved storing variable
+	int numR = 1;
+	msgrcv(qid, (struct msgbuf *)&rcv, size, 257, 0);
+	pid_t B_pid;
+	pid_t A_pid;
+	sscanf(rcv.greeting, "%d", &A_pid);
+	msgrcv(qid, (struct msgbuf *)&rcv, size, 100, 0);
+	sscanf(rcv.greeting, "%d", &B_pid);
+	//used to keep track of pid for when messages exceed 10000
 	
-	while(rcvA.greeting[0]!='T' || msgRec < 10001){
+	while(rcv.greeting[0]!='T' || !(killed)){
 
-		if(msgRec > 10000)
+		if(msgRec > 1000 && !(killed))
 		{
-			msg.m_type = 3;
-			cout << "WE HIT 10000!!!!" << endl;
-			strncpy(msg.greeting, "T", size);
-			msgsnd(qid, (struct msgbuf *)&msg, size, 0);
-			cout<<"booooo"<<endl;
+			cout << "WILL TERMINATE: " << B_pid << endl;
+			force_patch(B_pid);
+			killed = true;
+		}
+
+		msgrcv(qid, (struct msgbuf *)&rcv, size, -300, 0);
 			msgRec++;
-		}
 
-		if(msgrcv(qid, (struct msgbuf *)&rcvA, size, 997, IPC_NOWAIT) != -1)
-		{
-			//cout <<"DataHub Receiving from ProbeA (process ID): " << getpid() << endl;
-			//cout << rcvA.greeting << endl << endl;
-			//msgRec++;
-			msg.m_type = 4;
-			strncpy(msg.greeting, rcvA.greeting, size);
-			if(rcvA.greeting[0] != 'T')
-				msgsnd(qid, (struct msgbuf *)&msg, size, 0); // sending to probeA
-		}
+		//sscanf(rcv.greeting, "%d", &numR);
+		//message did not come from B
+		if(rcv.m_type == 257)
+			{
+				cout << "Message recieved from PID: " << A_pid << endl;
+				cout << "Number recieved: " << rcv.greeting;
+				msgsnd(qid, (struct msgbuf *)&msg, size, 0);
+			}
 
-		if(msgrcv(qid, (struct msgbuf *)&rcvB, size, 257, IPC_NOWAIT) != -1)
-		{
-			cout <<"DataHub Receiving from ProbeB (process ID): " << getpid() << endl;
-			cout << "message " << msgRec;
-			cout << rcvB.greeting << endl << endl;
-			msgRec++;
-		}
-
-	
+		else
+			{
+				cout << "Message recieved from PID: " << B_pid << endl;
+				cout << "Number recieved: " << rcv.greeting << endl;
+			}
+		
 	}
 
-	//msgrcv(qid, (struct msgbuf *)&rcv, size, 997, 0);
-	//cout << getpid() << endl;
-	//cout << rcv.greeting << endl;
 	msgctl(qid,IPC_RMID,NULL);
-
 	return 0;
 }
