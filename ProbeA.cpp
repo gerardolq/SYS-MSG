@@ -33,7 +33,7 @@ string toString(int n)
 
 int main()
 {
-	int alpha = 5443;
+	int alpha = 2001469;
 	srand(time(NULL));
 	int qid = msgget(ftok(".",'u'), 0);
 	buf msg;
@@ -50,10 +50,8 @@ int main()
 		num = rand();
 		if(num % alpha == 0)
 			{
-				cout << "Message sent from: " << getpid() << endl;
 				message = toString(num);
 				strncpy(msg.greeting, message.c_str(), size);
-				cout << "Number sent:" << num << endl;
 				msgsnd(qid, (struct msgbuf *)&msg, size, 0);	// sends to DataHub
 				msgrcv(qid, (struct msgbuf *)&rcv, size, 20000, 0);	// receives from DataHub
 			}

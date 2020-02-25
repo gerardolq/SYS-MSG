@@ -33,7 +33,7 @@ string toString(int n)
 
 int main()
 {
-	int beta = 1777;
+	int beta = 667141;
 	srand(time(NULL));
 	int qid = msgget(ftok(".",'u'), 0);
 	buf msg;
@@ -49,10 +49,8 @@ int main()
 		num = rand();
 		if(num % beta == 0)
 			{
-				cout << "Message sent from: " << getpid() << endl;
 				message = toString(num);
 				strncpy(msg.greeting, message.c_str(), size);
-				cout << "Number sent:" << num << endl;
 				msgsnd(qid, (struct msgbuf *)&msg, size, 0);
 			}
 	}

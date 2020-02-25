@@ -35,7 +35,7 @@ string toString(int n)
 }
 
 int main(){
-	int rho = 14969;
+	int rho = 2001463;
 	srand(time(NULL));
 	int qid = msgget(ftok(".",'u'), 0);
 	buf msg;
@@ -46,20 +46,19 @@ int main(){
 	message = toString(num);
 	strncpy(msg.greeting, message.c_str(), size);
 	msgsnd(qid, (struct msgbuf *)&msg, size, 0);
+	strncpy(msg.greeting, "kill", size);
+	kill_patch(qid, (struct msgbuf *)&msg,size, 1);
+	msg.m_type = 90;
 
 	while (true){ //WHILE IT IS NOT "TERMINATE"
 		num = rand();
 		if(num % rho == 0)
 			{
-				cout << "Message sent from: " << getpid() << endl;
 				message = toString(num);
 				strncpy(msg.greeting, message.c_str(), size);
-				cout << "Number sent:" << num << endl;
 				msgsnd(qid, (struct msgbuf *)&msg, size, 0);
 			}
 	}
-
-	cout << "Last number: " << num<< endl;
 
 }
 
