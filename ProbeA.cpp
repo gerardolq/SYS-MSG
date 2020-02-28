@@ -1,3 +1,10 @@
+// Written by: Eunice Kang, Gerardo Lopez
+// File Name: ProbeA.cpp
+// Description: Generates a random number that is divisible by Alpha
+// 		Sends the random number to DataHub
+//		Waits for acknowledgement from DataHub in the form of a message
+//		Is terminated if it generates a random number less than 50
+
 #include<iostream>
 #include<time.h>
 #include<cstdlib>
@@ -17,8 +24,11 @@ struct buf
 	char greeting[50];
 };
 
-//used to convert our numbers to a string so that
-//we can send it DataHub
+
+// FUNCTION: TOSTRING
+// input: int n - number that we want to convert to a string
+// output: string
+// function: converts the number n into a string of chars
 string toString(int n)
 {
 	string s = "";
@@ -54,7 +64,7 @@ int main()
 	buf msg;
 	buf rcv;
 	
-	//
+	//what stores the string
 	string message;
 	//setting the size
 	int size = sizeof(msg) - sizeof(long);
