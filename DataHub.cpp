@@ -1,4 +1,3 @@
-
 // Written by: Eunice Kang, Gerardo Lopez
 // File Name: DataHub.cpp
 // Description: Receives messages from ProbeA, ProbeB, and ProbeC
@@ -30,15 +29,16 @@ struct buf
 
 int main()
 {
-	int qid = msgget(ftok(".",'u'),IPC_EXCL|IPC_CREAT|0600);
+	int qid = msgget(ftok(".",'u'),IPC_EXCL|IPC_CREAT|0600);	// create queue
+	
 	buf msg;
 	msg.m_type = 20000;
 	buf rcv;
 	int size = sizeof(msg) - sizeof(long);
 	
-	bool killed = false; // shows if ProbeB has been killed or not
-	int msgRec = 0; // number messages received
-	int counter = 0; // counts the number of probes that have been terminated
+	bool killed = false; 	// shows if ProbeB has been killed or not
+	int msgRec = 0; 	// number messages received
+	int counter = 0; 	// counts the number of probes that have been terminated
 	
 	pid_t B_pid;
 	pid_t A_pid;
@@ -59,8 +59,8 @@ int main()
 			counter++;
 		}
 
-		msgrcv(qid, (struct msgbuf *)&rcv, size, -300, 0);
-		msgRec++;
+		msgrcv(qid, (struct msgbuf *)&rcv, size, -300, 0); // receive first message in queue
+		msgRec++;	// incrememnt number of messages received
 
 		if(rcv.m_type == 257) // if message is from ProbeA
 		{
@@ -105,5 +105,7 @@ int main()
 	}
 
 	msgctl(qid,IPC_RMID,NULL); // clear the queue
+	
+	// DONE :)
 	return 0;
 }
