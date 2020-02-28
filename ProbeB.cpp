@@ -1,3 +1,9 @@
+// Written by: Eunice Kang, Gerardo Lopez
+// File Name: ProbeB.cpp
+// Description: Generates a random number that is divisible by Beta
+// 		Sends the random number to DataHub
+//		Is terminated by DataHub if it receives 10000 messages
+
 #include<iostream>
 #include<time.h>
 #include<cstdlib>
@@ -15,6 +21,10 @@ struct buf
 	char greeting[50];
 };
 
+// FUNCTION: TOSTRING
+// input: int n - number that we want to convert to a string
+// output: string
+// function: converts the number n into a string of chars
 string toString(int n)
 {
 	string s = "";
@@ -33,19 +43,23 @@ string toString(int n)
 
 int main()
 {
-	int beta = 667141;
+	// initialization
 	srand(time(NULL));
 	int qid = msgget(ftok(".",'u'), 0);
+	int beta = 667141;
 	buf msg;
 	string message;
 	int size = sizeof(msg) - sizeof(long);
 	msg.m_type = 100;
+	
+	// Sending the pid to DataHub
 	int num = getpid();
 	message = toString(num);
 	strncpy(msg.greeting, message.c_str(), size);
 	msgsnd(qid, (struct msgbuf *)&msg, size, 0);
 
-	while (true){ //WHILE IT IS NOT "TERMINATE"
+	// Continuously send messages to DataHub
+	while (true){ //WHILE IT HAS NOT BEEN "TERMINATED"
 		num = rand();
 		if(num % beta == 0)
 			{
@@ -55,7 +69,7 @@ int main()
 			}
 	}
 
-	cout << "Last number: " << num<< endl;
+	//cout << "Last number: " << num<< endl;
 
 
 	//msgsnd(qid, (struct msgbuf *)&msg, size, 0);
